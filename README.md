@@ -61,11 +61,92 @@ sudo apt-get install zsh vim tmux htop lnav dialog ncdu silversearcher-ag exuber
 sudo apt-get install build-essential autotools-dev autoconf automake autoconf-archive gnu-standards autoconf-doc libtool libcmocka0 libcmocka-dev libhidapi-hidraw0 libhidapi-dev udev cmake cgdb libncurses5-dev libcpputest-dev
 ```
 
-* setup DOTFILES: https://github.com/giursino/dotfiles
+* impostare la chiave ssh da usare per github
+  * copiarla
+  * oppure rigenerarla `ssh-keygen -t ed25519 -C "pi@ggrasp.station` e poi inserirla su github
+* setup DOTFILES:  `git clone git@github.com:giursino/dotfiles`
+* cambiare shell `chsh -s /bin/zsh`
+* clone repo GGRasp:  `git clone git@github.com:giursino/GGRasp.git`
+* motd: `sudo ln -sf /home/pi/GGRasp/customs/motd/motd /etc/motd`
+* cron.d: 
+  * copia `sudo cp /home/pi/GGRasp/customs/cron.d/my-crontab /etc/cron.d/my-crontab`
+  * link nella home: `ln -s /etc/cron.d/my-crontab /home/pi/my-crontab`
+* NFS server: `sudo ln -sf /home/pi/GGRasp/customs/nfs/exports /etc/exports`
 * sincronizzazione HOME precedente
-* modifica `/etc/motd`
-* setup CRON con `my-crontab`
-* setup NFS server `/etc/exports`
+
+## Abilitato filesystem in readonly
+
+Utilizzare il metodo `overlayfs` fornito dal kernel per gestire il sistema in readonly, in modo da preservare la uSD.
+
+Visto che il metodo `overlay` non è ancora supportato nativamente dalla version 241 di `systemd`, ma solo dalla 245,
+avevo iniziato a creare degli script per utilizzare il modulo `overlay`; poi ho scoperto che il tool `raspi-config`
+mette a disposizione la feature, quindi l'ho usata.
+Ho migliorato la feature inserendo il tool [`overctl`](https://yagrebu.net/unix/rpi-overlay.md) e il `motd` per mostrare
+all'accesso com'è montato il file-system.
+
+Ho deciso di tenere in read-only solo la parte di SO non i dati utenti, quindi ho partizionato la uSD così:
+```
+Device         Boot    Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1          8192   532479   524288  256M  c W95 FAT32 (LBA)
+/dev/mmcblk0p2        532480 16916479 16384000  7,8G 83 Linux
+/dev/mmcblk0p3      16916480 62332927 45416448 21,7G 83 Linux
+```
+
+La HOME è montata sulla partizione 3 dei dati 
+
+### Riferimenti
+* [Documentazione iniziale](https://yagrebu.net/unix/rpi-overlay.md)
+* [Repo github contente i files](https://github.com/ghollingworth/overlayfs)
+* [Repo alternativo](https://github.com/JasperE84/root-ro)
+* [Lungo thread di RPi dov'è partito tutto](https://www.raspberrypi.org/forums/viewtopic.php?f=63&t=161416)
+* [Utilizzo vecchio metodo senza overlay](https://hallard.me/raspberry-pi-read-only/)
+
+### Step da seguire
+
+* partizionare la uSD aggiungendo la partizione 3 utilizzando `gparted` da un PC con la uSD inserita
+* avviare il sistema
+* disabilitare lo swap
+  ```
+  sudo dphys-swapfile swapoff
+  sudo dphys-swapfile uninstall
+  sudo update-rc.d dphys-swapfile disable
+  sudo systemctl disable dphys-swapfile
+  ```
+* montare la partizione dei dati temporaneamente e creare la cartelle utente
+  ```
+  sudo mkdir /tmp/home
+  sudo mount /dev/mmcblk0p3 /tmp/home
+  sudo cp -a /home/. /tmp/home/
+  sudo umount /tmp/home
+  ```
+* modificare `fstab` per montare la home sulla partizione dedicata
+  ```
+  proc                  /proc           proc    defaults          0       0
+  PARTUUID=ab962e14-01  /boot           vfat    defaults          0       2
+  PARTUUID=ab962e14-02  /               ext4    defaults,noatime  0       1
+  PARTUUID=ab962e14-03  /home           ext4    defaults,noatime  0       2
+  ```
+* copiare `overctl`: `sudo cp /home/pi/GGRasp/customs/overlayfs/overctl /usr/local/sbin`
+* modificare motd: `sudo ln -sf /home/pi/GGRasp/customs/overlayfs/80-overlay /etc/update-motd.d`
+* attivare read-only filesystem su `sudo raspi-config`
+  * Performance > Overlay File System
+  * Non bloccare `/boot`
+* riavviare
+
+
+Verificare che il metodo funzioni:
+
+* eseguire letture su uSD: `cat /sys/fs/ext4/mmcblk0p2/lifetime_write_kbytes`
+* verificare la tipologia di mount tramite il comando `findmnt`:
+  * read-write:
+    ```
+    TARGET                                SOURCE         FSTYPE     OPTIONS
+    /                                     /dev/mmcblk0p2 ext4       rw,noatime
+  * read-only:
+    ```
+    TARGET                                SOURCE         FSTYPE     OPTIONS
+    /                                     /dev/mmcblk0p2 ext4       rw,noatime
+    ```
 
 
 ## Installazione applicativi audio
