@@ -1,0 +1,12 @@
+# crontab custom
+PATH=/opt/vrag/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# .---------------- [m]inute: minuto (0 - 59)
+# |  .------------- [h]our: ora (0 - 23)
+# |  |  .---------- [d]ay of month: giorno del mese (1 - 31)
+# |  |  |  .------- [mon]th: mese (1 - 12) OPPURE jan,feb,mar,apr...
+# |  |  |  |  .---- [w]eek day: giorno della settimana (0 - 6) (domenica=0 o 7)  OPPURE sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# m h dom mon dow        user    command
+#0 *  *   *  *          root    /usr/local/bin/check-wifi.sh 2>&1 | logger -t check-wifi
+

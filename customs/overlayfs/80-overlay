@@ -1,0 +1,17 @@
+#!/bin/sh
+
+str=$(mount | grep ' on / ')
+
+if echo $str | grep -q 'overlay'; then
+  printf "\033[1;32mREAD-ONLY SYSTEM.\033[0m Changes (such as updates or wifi network passwords)\n"
+  echo "are NOT persistent and will be lost on reboot."
+  echo ""
+  echo "To change this, run the 'overctl -t' command and reboot BEFORE making changes."
+elif echo $str | grep -q 'rw'; then
+  printf "\033[1;31mREAD-WRITE SYSTEM.\033[0m Changes made in this session are permanent. Modify with care!\n"
+  echo " "
+  echo "To change this, run the 'overctl -t'"
+else
+  printf "\033[1;31mWARNING: Unknown the filesystem state.\033[0m Read-only or read-write?\n"
+  echo ""
+fi
