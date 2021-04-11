@@ -17,17 +17,9 @@ ssh pi@ggrasp.station
 * download `2017-11-29-raspbian-stretch-lite`
 * download `etcher-1.2.1-linux-x86_64`
 * eseguito `etcher-1.2.1-linux-x86_64` e creata una scheda SD con raspbian stretch-lite
-
 * inserita SD su PC e creato un file vuoto nella partizione di boot della scehda SD chiamato `ssh` per abilitare l'accesso via ssh alla board
-
 * inserita SD su board
-
-* connessione da PC tramite ssh utilizzando hostname della board:
-
-  ```
-  ssh pi@raspberrypi.lan
-  ```
-
+* connessione da PC tramite ssh utilizzando hostname della board: `ssh pi@raspberrypi.lan`
 * eseguito da board: `sudo raspi-config`
  * cambiato `hostname` in `ggrasp`
  * cambiato `locales`
@@ -35,9 +27,7 @@ ssh pi@ggrasp.station
  * cambiata psw di default
  * disabilitato terminale su seriale ma abilitata la seriale (futura connessione TP-UART)
  * cambiato timezone
-
 * abilitati alias `ll` su `.bashrc`
-
 * aggiunta chiave pubblica del PC sulla board per connessione senza psw
 
 
@@ -83,16 +73,13 @@ sudo apt-get install build-essential autotools-dev autoconf automake autoconf-ar
 [Riferimento UPnP Renderer.](https://www.lesbonscomptes.com/pages/raspmpd.html)
 
 * test funzionamento jack audio:
-
   ```
   $ aplay /usr/share/sounds/alsa/Front_Center.wav
   $ speaker-test -t sine -f 440 -c 2 -s 1
   ```
-
 * installato MPD: `sudo apt-get install mpd`
 
   Su RPi3 ho avuto problemi con il default di MPD:
-
   * cambiato settaggio di `/var/log/mpd/mpd.log` con utente `mpd` e gruppo `audio`
   * inserito `mpd` in gruppo `audio`
   * cambiato file di configurazione di MPD:
@@ -105,9 +92,7 @@ sudo apt-get install build-essential autotools-dev autoconf automake autoconf-ar
         mixer_control   "Headphone"
     }
     ```
-
 * installato UPMPDCLI:
-  
   ```
   sudo nano /etc/apt/sources.list.d/upmpdcli.list
   -- aggiunta riga
@@ -115,25 +100,19 @@ sudo apt-get install build-essential autotools-dev autoconf automake autoconf-ar
 
   sudo apt-get update
   sudo apt-get install upmpdcli
-
+  ```
 * modificato `/etc/upmpdcli.conf` in modo da impostare la scheda di rete da usare `upnpiface = wlan0`
-
 * modificato `/usr/share/upmpdcli/icon.png` e altri per puntare ai rispettivi file sulla home
-
 * riavviato e provato controllo da telefono tramite BubbleUpnp
 
 ## Docker
 
 Per l'installazione seguire le indicazioni ufficiali sul sito ed eseguire
-
 ```
 get-docker.sh
 ```
-
 Lo script installerà il sorgente APT, come segue:
-
 ```
 cat /etc/apt/sources.list.d/docker.list 
 deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
 ```
-
