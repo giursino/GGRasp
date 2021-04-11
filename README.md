@@ -67,8 +67,9 @@ sudo apt-get install build-essential autotools-dev autoconf automake autoconf-ar
 * setup DOTFILES:  `git clone git@github.com:giursino/dotfiles`
 * cambiare shell `chsh -s /bin/zsh`
 * clone repo GGRasp:  `git clone git@github.com:giursino/GGRasp.git`
+* zsh: `sudo ln -sf /home/pi/GGRasp/customs/zsh/zshrc.local /home/pi/.zshrc.local`
 * motd: `sudo ln -sf /home/pi/GGRasp/customs/motd/motd /etc/motd`
-* cron.d: 
+* cron.d:
   * copia `sudo cp /home/pi/GGRasp/customs/cron.d/my-crontab /etc/cron.d/my-crontab`
   * link nella home: `ln -s /etc/cron.d/my-crontab /home/pi/my-crontab`
 * NFS server: `sudo ln -sf /home/pi/GGRasp/customs/nfs/exports /etc/exports`
