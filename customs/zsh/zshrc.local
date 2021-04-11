@@ -1,0 +1,11 @@
+prompt_overlayfs_setup() {
+  if mount | grep ' on / ' | grep 'overlay' > /dev/null; then
+    P='%{${fg_bold[green]}%}[RO]%{$reset_color%} '
+  else
+    P='%{${fg_bold[red]}%}[RW]%{$reset_color%} '
+  fi
+  PROMPT=${PROMPT/#/$P}
+}
+
+# Prefix prompt with filesystem read-only state
+prompt_overlayfs_setup
