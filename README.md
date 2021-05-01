@@ -93,7 +93,7 @@ Device         Boot    Start      End  Sectors  Size Id Type
 /dev/mmcblk0p3      16916480 62332927 45416448 21,7G 83 Linux
 ```
 
-La HOME è montata sulla partizione 3 dei dati 
+La HOME è montata sulla partizione 3 dei dati
 
 ### Riferimenti
 * [Documentazione iniziale](https://yagrebu.net/unix/rpi-overlay.md)
@@ -165,7 +165,7 @@ Verificare che il metodo funzioni:
   * cambiato settaggio di `/var/log/mpd/mpd.log` con utente `mpd` e gruppo `audio`
   * inserito `mpd` in gruppo `audio`
   * cambiato file di configurazione di MPD:
-  
+
     ```
     audio_output {
         type            "alsa"
@@ -195,6 +195,49 @@ get-docker.sh
 ```
 Lo script installerà il sorgente APT, come segue:
 ```
-cat /etc/apt/sources.list.d/docker.list 
+cat /etc/apt/sources.list.d/docker.list
 deb [arch=armhf] https://download.docker.com/linux/raspbian stretch stable
 ```
+
+### Docker su ambiente overlayfs
+
+Nel caso si usi un ambiente in read-only basato su `overlayfs`, Docker
+non funzionerà perchè utilizza anch'esso il modulo `overlayfs` e da
+specifica non è possibile montare una cartella in overlayfs su una
+cartella la cui radice è già montata in overlayfs.
+
+Pertanto è necessario spostare la home di docker su un filesystem non
+montato con overlayfs.
+
+Nel mio caso, ho deciso di spostare la cartella di lavoro di docker
+`/var/lib/docker` sulla cartella `/home/docker` che è montata in RW.
+
+* Stop docker:
+  ```
+  sudo systemctl stop docker
+  sudo systemctl stop docker.socket
+  ```
+
+* Copiare contenuto della cartella di lavoro di Docker nella nuova
+  posizione:
+  ```
+  sudo rsync -a /var/lib/docker /home
+  ```
+* Cambiare cartella di lavoro, creando il file
+  `/etc/docker/daemon.json`:
+  ```
+  {
+    "data-root": "/home/docker"
+  }
+  ```
+
+* Riavviare docker:
+  ```
+  systemctl daemon-reload
+  systemctl restart docker
+  ```
+
+* Verificare aggiornamento root:
+  ```
+  docker info
+  ```
