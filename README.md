@@ -241,3 +241,48 @@ Nel mio caso, ho deciso di spostare la cartella di lavoro di docker
   ```
   docker info
   ```
+
+## KNXD
+
+Ho installato knxd in modo da accedere al bus tramite una interfaccia
+KNX USB. Ho utilizzato questo servizio per eseguire l'integrazione con
+HomeAssistant.
+
+### Installazione
+
+```
+sudo apt-get install knxd
+```
+
+### Setup
+
+Modificare il file di configurazione `/etc/knxd.conf` in modo da
+utilizzare il file `knxd.ini` presente nell'home.
+
+```
+/etc/knxd.conf:
+  KNXD_OPTS=/home/pi/knxd.ini
+```
+
+Aggiungere al file di configurazione di `udev` l'interfaccia KNX USB
+
+```
+/usr/lib/udev/rules.d/60-knxd.rules:
+  ATTR{idVendor}=="16d0", ATTR{idProduct}=="0490",OWNER="knxd",MODE="0600"
+```
+
+Riavviare il servizio
+
+```
+systemctl restart knxd.service
+```
+
+Verificare sia attivo guardando i log di sistema o che sia presente
+la porta TCP 6666
+
+```
+$ netstat -tln
+...
+tcp        0      0 0.0.0.0:6666            0.0.0.0:*               LISTEN
+...
+```
