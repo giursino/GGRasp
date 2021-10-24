@@ -286,3 +286,43 @@ $ netstat -tln
 tcp        0      0 0.0.0.0:6666            0.0.0.0:*               LISTEN
 ...
 ```
+
+## Home Assistant
+
+Ho installato Home Assistant Core su container Docker.
+Mancando il Supervisor ho installato successivamente HACS in modo da
+ottenere i plugin anche su ambiente Core.
+
+* [Riferimento su indomus](https://indomus.it/guide/come-installare-e-configurare-home-assistant-core-con-docker-su-un-raspberry-pi-gia-in-uso/).
+* [Riferimento ufficiale](https://www.home-assistant.io/installation/raspberrypi#install-home-assistant-container)
+
+Comandi:
+
+```
+docker run --init -d \
+  --name homeassistant \
+  --restart=unless-stopped \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /home/pi/hass:/config \
+  --network=host \
+  homeassistant/raspberrypi3-homeassistant:stable
+```
+
+### Aggiornamento
+
+[](https://www.home-assistant.io/common-tasks/container/)
+
+```
+docker pull ghcr.io/home-assistant/raspberrypi3-homeassistant:stable
+docker stop homeassistant
+docker rm homeassistant
+docker run -d \
+  --name homeassistant \
+  --restart=unless-stopped \
+  --privileged \
+  -e TZ=Europe/Rome \
+  -v /home/pi/hass:/config \
+  --network=host \
+  ghcr.io/home-assistant/raspberrypi3-homeassistant:stable
+```
+
