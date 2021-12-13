@@ -251,7 +251,7 @@ HomeAssistant.
 ### Installazione
 
 ```
-sudo apt-get install knxd
+sudo apt-get install knxd knxd-tools
 ```
 
 ### Setup
@@ -269,6 +269,7 @@ Aggiungere al file di configurazione di `udev` l'interfaccia KNX USB
 ```
 /usr/lib/udev/rules.d/60-knxd.rules:
   ATTR{idVendor}=="16d0", ATTR{idProduct}=="0490",OWNER="knxd",MODE="0600"
+  ATTR{idVendor}=="28c2", ATTR{idProduct}=="001a",OWNER="knxd",MODE="0600"
 ```
 
 Riavviare il servizio
