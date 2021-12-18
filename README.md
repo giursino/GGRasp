@@ -312,6 +312,7 @@ docker run --init -d \
 ```
 
 **riavvio**: `docker restart homeassistant`
+
 **accesso alla shell**: `docker exec -it homeassistant bash`
 
 ### Aggiornamento
