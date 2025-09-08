@@ -333,3 +333,36 @@ docker run -d \
   ghcr.io/home-assistant/raspberrypi3-homeassistant:stable
 ```
 
+## Aggiornamento sistema 08/09/2025
+
+Dato che VSCode non permette più di collegarsi tramite SSH e Remote Development ho tentato di aggiornare il sistema operativo e la LIBC.
+
+```sh
+15:55:10.719] > [2025-09-08 15:55:10] error This machine does not meet Visual Studio Code Server's prerequisites, expected either...
+>
+> * find GLIBCXX >= v3.4.26 (but found v3.4.25 instead) for GNU environments
+> * find /lib/ld-musl-x86_64.so.1, which is required to run the Visual Studio Code Server in musl environments
+```
+
+e il comando `strings /usr/lib/arm-linux-gnueabihf/libstdc++.so.6 | grep GLIBCXX` in effetti non elenca la `GLIBCXX 3.4.26`.
+
+Ho provato ad aggiorare la `libstdc++` ma non ci sono aggiornamenti disponibili:
+
+```sh
+sudo apt-get install --only-upgrade libstdc++6
+Lettura elenco dei pacchetti... Fatto
+Generazione albero delle dipendenze       
+Lettura informazioni sullo stato... Fatto
+libstdc++6 è già alla versione più recente (8.3.0-6+rpi1).
+```
+
+### Aggiornamento chiave upnp
+
+Seguire guida: https://www.lesbonscomptes.com/pages/signatures.html#APT-IMPORT
+
+```sh
+cd /usr/share/keyrings
+sudo mv lesbonscomptes.gpg lesbonscomptes.gpg.SAVE
+sudo wget https://www.lesbonscomptes.com/pages/lesbonscomptes.gpg
+sudo apt update
+```
